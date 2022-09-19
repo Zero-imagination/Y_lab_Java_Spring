@@ -51,7 +51,7 @@ public class UserDataFacade {
                 .map(BookDto::getId)
                 .toList();
         log.info("Collected book ids: {}", bookIdList);
-        
+
 
         return UserBookResponse.builder()
                 .userId(createdUser.getId())
@@ -59,8 +59,26 @@ public class UserDataFacade {
                 .build();
     }
 
-    public UserBookResponse updateUserWithBooks(UserBookRequest userBookRequest) {
-        return null;
+    public UserBookResponse updateUserWithBooks(UserBookRequest userBookRequest, Long userId) {
+        UserDto userDto = userMapper.userRequestToUserDto(userBookRequest.getUserRequest());
+        userDto.setId(userId);
+
+        List<Long> bookIdList = userBookRequest.getBookRequests()
+                .stream()
+                .filter(Objects::nonNull)
+                .map(bookMapper::bookRequestToBookDto)
+                .map(bookService::updateBook)
+                .peek(updatedBook -> log.info("Updated book: {}", updatedBook))
+                .map(BookDto::getId)
+                .toList();
+
+        userDto.setListBooksId(bookIdList);
+        UserDto updatedUser = userService.updateUser(userDto);
+
+        return UserBookResponse.builder()
+                .userId(updatedUser.getId())
+                .booksIdList(bookIdList)
+                .build();
     }
 
     public UserBookResponse getUserWithBooks(Long userId) {

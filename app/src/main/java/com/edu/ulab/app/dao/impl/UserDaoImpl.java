@@ -19,7 +19,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User update(User user) {
-        return null;
+        return storage.updateUser(user);
     }
 
     @Override

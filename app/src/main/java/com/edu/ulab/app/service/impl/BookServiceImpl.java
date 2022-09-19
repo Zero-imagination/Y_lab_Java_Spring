@@ -27,7 +27,14 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookDto updateBook(BookDto bookDto) {
-        return null;
+        Book book = new Book();
+        book.setId(bookDto.getId());
+        book.setAuthor(bookDto.getAuthor());
+        book.setTitle(bookDto.getTitle());
+        book.setUserId(bookDto.getUserId());
+        book.setPageCount(bookDto.getPageCount());
+        bookDao.updateBook(book);
+        return bookDto;
     }
 
     @Override

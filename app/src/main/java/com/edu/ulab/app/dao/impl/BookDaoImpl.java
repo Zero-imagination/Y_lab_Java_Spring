@@ -16,7 +16,7 @@ public class BookDaoImpl implements BookDao {
 
     @Override
     public Book updateBook(Book book) {
-        return null;
+        return storage.updateBook(book);
     }
 
     @Override

@@ -27,7 +27,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUser(UserDto userDto) {
-        return null;
+        User user = new User();
+        user.setId(userDto.getId());
+        user.setAge(userDto.getAge());
+        user.setFullName(userDto.getFullName());
+        user.setTitle(userDto.getTitle());
+        user.setListBookId(userDto.getListBooksId());
+        userDao.update(user);
+        return userDto;
     }
 
     @Override

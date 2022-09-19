@@ -21,22 +21,22 @@ public class Storage {
         return instance;
     }
     public User create(User user){
+        if (!Objects.nonNull(user)){
+            return null;
+        }
         user.setId((long) user.hashCode());
         storageUser.put(user.getId(), user);
         return user;
     }
     public Book create(Book book){
+        if (!Objects.nonNull(book)){
+            return null;
+        }
         book.setId((long) book.hashCode());
         storageBook.put(book.getId(), book);
         return book;
     }
 
-
-    /*public void update(User user){
-        if (storageUser.containsKey(user.getId())){
-            storageUser.put(user.getId(), user);
-        }
-    }*/
     public void deleteUser(Long userId){
         if (storageUser.containsKey(userId) && Objects.nonNull(userId)){
             storageUser.remove(userId);
@@ -52,6 +52,26 @@ public class Storage {
             return null;
         }
         return storageUser.get(userId);
+    }
+    public User updateUser(User user){
+        if (!Objects.nonNull(user)){
+            return null;
+        }
+        if (!storageUser.containsKey(user.getId())){
+            return null;
+        }
+        storageUser.replace(user.getId(), user);
+        return user;
+    }
+    public Book updateBook(Book book){
+        if (!Objects.nonNull(book)){
+            return null;
+        }
+        if (!storageBook.containsKey(book.getId())){
+            return null;
+        }
+        storageBook.replace(book.getId(), book);
+        return book;
     }
 
     //todo создать хранилище в котором будут содержаться данные
