@@ -2,7 +2,6 @@ package com.edu.ulab.app.facade;
 
 import com.edu.ulab.app.dto.BookDto;
 import com.edu.ulab.app.dto.UserDto;
-import com.edu.ulab.app.exception.NotFoundException;
 import com.edu.ulab.app.mapper.BookMapper;
 import com.edu.ulab.app.mapper.UserMapper;
 import com.edu.ulab.app.service.BookService;
@@ -52,6 +51,7 @@ public class UserDataFacade {
                 .map(BookDto::getId)
                 .toList();
         log.info("Collected book ids: {}", bookIdList);
+        
 
         return UserBookResponse.builder()
                 .userId(createdUser.getId())
@@ -64,9 +64,19 @@ public class UserDataFacade {
     }
 
     public UserBookResponse getUserWithBooks(Long userId) {
-        return null;
+        UserDto userDto = userService.getUserById(userId);
+        List<Long> bookIdList = userDto.getListBooksId();
+        return UserBookResponse.builder()
+                .userId(userDto.getId())
+                .booksIdList(bookIdList)
+                .build();
     }
 
     public void deleteUserWithBooks(Long userId) {
+        userService.getUserById(userId).getListBooksId().stream()
+                .peek(bookId->log.info("deleted book: {}", bookId))
+                .forEach(bookService::deleteBookById);
+        userService.deleteUserById(userId);
+        log.info("Deleted user with id: {}", userId);
     }
 }
