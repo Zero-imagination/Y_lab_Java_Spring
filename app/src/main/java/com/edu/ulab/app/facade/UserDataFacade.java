@@ -2,7 +2,6 @@ package com.edu.ulab.app.facade;
 
 import com.edu.ulab.app.dto.BookDto;
 import com.edu.ulab.app.dto.UserDto;
-import com.edu.ulab.app.exception.NotFoundException;
 import com.edu.ulab.app.mapper.BookMapper;
 import com.edu.ulab.app.mapper.UserMapper;
 import com.edu.ulab.app.service.BookService;
@@ -53,20 +52,49 @@ public class UserDataFacade {
                 .toList();
         log.info("Collected book ids: {}", bookIdList);
 
+
         return UserBookResponse.builder()
                 .userId(createdUser.getId())
                 .booksIdList(bookIdList)
                 .build();
     }
 
-    public UserBookResponse updateUserWithBooks(UserBookRequest userBookRequest) {
-        return null;
+    public UserBookResponse updateUserWithBooks(UserBookRequest userBookRequest, Long userId) {
+        UserDto userDto = userMapper.userRequestToUserDto(userBookRequest.getUserRequest());
+        userDto.setId(userId);
+
+        List<Long> bookIdList = userBookRequest.getBookRequests()
+                .stream()
+                .filter(Objects::nonNull)
+                .map(bookMapper::bookRequestToBookDto)
+                .map(bookService::updateBook)
+                .peek(updatedBook -> log.info("Updated book: {}", updatedBook))
+                .map(BookDto::getId)
+                .toList();
+
+        userDto.setListBooksId(bookIdList);
+        UserDto updatedUser = userService.updateUser(userDto);
+
+        return UserBookResponse.builder()
+                .userId(updatedUser.getId())
+                .booksIdList(bookIdList)
+                .build();
     }
 
     public UserBookResponse getUserWithBooks(Long userId) {
-        return null;
+        UserDto userDto = userService.getUserById(userId);
+        List<Long> bookIdList = userDto.getListBooksId();
+        return UserBookResponse.builder()
+                .userId(userDto.getId())
+                .booksIdList(bookIdList)
+                .build();
     }
 
     public void deleteUserWithBooks(Long userId) {
+        userService.getUserById(userId).getListBooksId().stream()
+                .peek(bookId->log.info("deleted book: {}", bookId))
+                .forEach(bookService::deleteBookById);
+        userService.deleteUserById(userId);
+        log.info("Deleted user with id: {}", userId);
     }
 }
